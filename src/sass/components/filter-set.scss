@@ -9,7 +9,9 @@
 
 	&__name {
 		font-size: microbe-rem(16);
+		font-weight: bold;
 		font-style: italic;
 		margin-bottom: microbe-em(8, 16);
+		color: $color-primary-dark;
 	}
 }

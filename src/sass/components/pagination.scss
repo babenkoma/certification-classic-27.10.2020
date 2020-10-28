@@ -1,0 +1,37 @@
+.pagination {
+	&__link {
+		min-width: 22px;
+		height: 22px;
+		font-size: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: $background-surface;
+		border: 1px solid $border-default;
+		text-decoration: none;
+		color: $color-text-main;
+		transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+
+		@include microbe-media($microbe-breakpoint-sm) {
+			min-width: 30px;
+			height: 30px;
+		}
+
+		@include microbe-media($microbe-breakpoint-df) {
+			min-width: 40px;
+			height: 40px;
+			font-size: 14px;
+		}
+
+		&:hover {
+			border-color: $color-primary-dark;
+			color: $color-primary-dark;
+		}
+
+		&.is-active {
+			background-color: $color-primary-dark;
+			border-color: $color-primary-dark;
+			color: $color-text-contrasText;
+		}
+	}
+}

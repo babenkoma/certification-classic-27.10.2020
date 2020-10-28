@@ -1,4 +1,9 @@
 .sort {
 	position: relative;
 	z-index: 3;
+
+	label {
+		color: $color-primary-dark;
+		font-weight: bold;
+	}
 }

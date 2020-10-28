@@ -6,7 +6,6 @@
 
 	&--white {
 		background-color: $background-surface;
-		z-index: 1;
 	}
 
 	&__decor {
@@ -18,8 +17,8 @@
 		margin-left: microbe-rem(-140);
 	}
 
-	.wysiwyg {
+	.container {
 		position: relative;
-		z-index: 2;
+		z-index: 1;
 	}
 }

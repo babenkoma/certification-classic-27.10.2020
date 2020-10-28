@@ -32,9 +32,12 @@ class Filter {
 			}
 		};
 
-		this.$filter.on('change', () => {
-			this.filtering();
-		});
+		const elements = this.$filter.get(0).elements;
+		for (let i = 0; i < elements.length; i++) {
+			$(elements[i]).on('change', () => {
+				this.filtering();
+			});
+		}
 	}
 
 	form2server(key) {
