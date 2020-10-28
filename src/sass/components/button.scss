@@ -1,0 +1,16 @@
+.button {
+	padding: 0 20px;
+	border: none;
+	outline: none;
+	background-color: $color-primary-dark;
+	color: $color-primary-contrasText;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	transition: background-color 0.3s;
+
+	&:hover {
+		background-color: $color-primary-light;
+	}
+}

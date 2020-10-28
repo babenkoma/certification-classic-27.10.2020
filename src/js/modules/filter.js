@@ -7,18 +7,25 @@ import goods from 'js#/data/goods.json';
 
 class Filter {
 	constructor() {
-		this.filter = $('#filter').get(0);
+		this.$filter = $('#filter');
+		this.$pagination = $('#pagination');
+		this.$list = $('#card-list');
+		this.$brands = $('#brands');
+		this.$reset = $('#filter-reset');
 
-		if (!this.filter) {
+		if (!this.$filter.length) {
 			return;
 		}
 
-		this.$filter = $(this.filter);
-		this.$pagination = $('#pagination');
+		this.filter = this.$filter.get(0);
 		this.elements = this.filter?.elements;
 		this.$cardTemplate = $(window.document.querySelector('#card-template')?.content);
-		this.$paginationTemplate = $(window.document.querySelector('#pagination-template')?.content);
-		this.$list = $('#card-list');
+		this.$paginationTemplate = $(
+			window.document.querySelector('#pagination-template')?.content
+		);
+		this.$checkboxTemplate = $(
+			window.document.querySelector('#checkbox-template')?.content
+		);
 		this.list = goods || [];
 		this.filterList = goods || [];
 		this.page = 1;
@@ -54,7 +61,11 @@ class Filter {
 			'sort',
 			'per-page'
 		];
-		this.initialData = {
+
+		this.setFilters();
+		this.setForm();
+
+		this.initialData = () => ({
 			params: {
 				brand: [],
 				manufacturer: '',
@@ -70,8 +81,8 @@ class Filter {
 				perPage: +this.elements.per_page.value,
 				page: this.page
 			}
-		};
-		this.data = this.assign(this.initialData);
+		});
+		this.data = this.assign(this.initialData());
 
 		for (let i = 0; i < this.elements.length; i++) {
 			$(this.elements[i]).on('change', () => {
@@ -85,6 +96,17 @@ class Filter {
 			this.render();
 			return false;
 		});
+		this.$reset.on('click', () => {
+			this.setFilters();
+			this.page = 1;
+			const sort = $(this.elements.sort).find('option').eq(0).attr('value');
+			const perPage = $(this.elements.per_page).find('option').eq(0).attr('value');
+			$(this.elements.sort).val(sort);
+			$(this.elements.per_page).val(perPage);
+			this.data = this.assign(this.initialData());
+			this.render();
+		});
+
 		this.render();
 	}
 
@@ -93,9 +115,14 @@ class Filter {
 		return row ? row.server : key;
 	}
 
-	server2form(key) {
-		const row = this.keys.find((item) => item.server === key);
+	param2form(key) {
+		const row = this.keys.find((item) => item.param === key);
 		return row ? row.form : key;
+	}
+
+	param2server(key) {
+		const row = this.keys.find((item) => item.param === key);
+		return row ? row.server : key;
 	}
 
 	getValue(key, value) {
@@ -116,8 +143,8 @@ class Filter {
 	}
 
 	getFilterData() {
-		const formData = new FormData(this.filter);
-		const data = this.assign(this.initialData);
+		const formData = new window.FormData(this.filter);
+		const data = this.assign(this.initialData());
 
 		let priceFrom = 0;
 		let priceTo = 0;
@@ -186,23 +213,40 @@ class Filter {
 		const filterList = this.list.filter((item) => {
 			let isShow = true;
 
-			if (this.data.params.brand.length && !this.data.params.brand.includes(String(item?.brand?.id))) {
+			if (
+				this.data.params.brand.length &&
+				!this.data.params.brand.includes(String(item?.brand?.id))
+			) {
 				isShow = isShow && false;
 			}
 
-			if (this.data.params.manufacturer && String(this.data.params.manufacturer) !== String(item?.manufacturer?.id)) {
+			if (
+				this.data.params.manufacturer &&
+				String(this.data.params.manufacturer) !== String(item?.manufacturer?.id)
+			) {
 				isShow = isShow && false;
 			}
 
-			if (this.data.params.model && String(this.data.params.model) !== String(item?.model?.id)) {
+			if (
+				this.data.params.model &&
+				String(this.data.params.model) !== String(item?.model?.id)
+			) {
 				isShow = isShow && false;
 			}
 
-			if (this.data.params.year && String(this.data.params.year) !== String(item?.year)) {
+			if (
+				this.data.params.year &&
+				String(this.data.params.year) !== String(item?.year)
+			) {
 				isShow = isShow && false;
 			}
 
-			if (!(item?.price?.value >= this.data.params.price[0] && item?.price?.value <= this.data.params.price[1])) {
+			if (
+				!(
+					item?.price?.value >= this.data.params.price[0] &&
+					item?.price?.value <= this.data.params.price[1]
+				)
+			) {
 				isShow = isShow && false;
 			}
 
@@ -300,7 +344,170 @@ class Filter {
 			});
 		}
 
-		return result;
+		return end > start ? result : [];
+	}
+
+	setForm() {
+		const params = new window.URLSearchParams(
+			window.document.location.search.substring(1)
+		);
+
+		this.$brands.find(`[name="brand[]"]`).prop('checked', false);
+		for (const pair of params.entries()) {
+			const key = this.param2form(pair[0].replace(/[[]]/g, ''));
+			const server = this.param2server(pair[0].replace(/[[]]/g, ''));
+			const value = this.getValue(server, pair[1]);
+
+			if (key === 'brand') {
+				this.$brands
+					.find(`[name="brand[]"][value="${value}"]`)
+					.prop('checked', true);
+			}
+			if (key === 'marka') {
+				$(this.elements.marka).val(value);
+			}
+			if (key === 'filter-model') {
+				$(this.elements['filter-model']).val(value);
+			}
+			if (key === 'year') {
+				$(this.elements.year).val(value);
+			}
+			if (key === 'price-from') {
+				$(this.elements['price-from']).val(value);
+			}
+			if (key === 'price-to') {
+				$(this.elements['price-to']).val(value);
+			}
+			if (key === 'sort') {
+				$(this.elements.sort).val(value);
+			}
+			if (key === 'per_page') {
+				$(this.elements.per_page).val(value);
+			}
+			if (key === 'page') {
+				this.page = value;
+			}
+		}
+	}
+
+	setFilters() {
+		const $manufacturer = $(this.elements.marka);
+		const $model = $(this.elements['filter-model']);
+		const $priceFrom = $(this.elements['price-from']);
+		const $priceTo = $(this.elements['price-to']);
+		const $year = $(this.elements.year);
+
+		this.$brands.html('');
+		$manufacturer.html(`<option value="">Выбрать</option>`);
+		$model.html(`<option value="">Выбрать</option>`);
+		$year.html(`<option value="">Выбрать</option>`);
+
+		const brands = [];
+		const manufacturer = [];
+		const model = [];
+		const year = {};
+		const years = [];
+		let minPrice = +this.list[0]?.price?.value;
+		let maxPrice = +this.list[0]?.price?.value;
+
+		this.list.forEach((item) => {
+			if (!brands.includes(item?.brand?.id)) {
+				brands.push(item?.brand?.id);
+
+				const checkboxItem = this.$checkboxTemplate.clone();
+				checkboxItem
+					.find('[data-checkbox]')
+					.attr('name', 'brand[]')
+					.attr('value', item?.brand?.id);
+				checkboxItem.find('[data-text]').html(item?.brand?.name);
+				this.$brands.append(checkboxItem);
+			}
+
+			if (!manufacturer.includes(item?.manufacturer?.id)) {
+				manufacturer.push(item?.manufacturer?.id);
+
+				$manufacturer.append(
+					`<option value="${item?.manufacturer?.id}">${item?.manufacturer?.name}</option>`
+				);
+			}
+
+			if (!model.includes(item?.model?.id)) {
+				model.push(item?.model?.id);
+
+				$model.append(
+					`<option value="${item?.model?.id}">${item?.model?.name}</option>`
+				);
+			}
+
+			if (+item?.price?.value < minPrice) {
+				minPrice = +item?.price?.value;
+			}
+
+			if (+item?.price?.value > maxPrice) {
+				maxPrice = +item?.price?.value;
+			}
+
+			if (!years.includes(item?.year)) {
+				years.push(item?.year);
+			}
+		});
+
+		$priceFrom.val(minPrice);
+		$priceTo.val(maxPrice);
+		years.sort();
+		years.forEach((val) => {
+			let key = '';
+			if (val >= 1970 && val < 1980) {
+				key = '70-ые';
+				if (!year[key]) {
+					year[key] = [];
+				}
+				year[key].push(val);
+			}
+			if (val >= 1980 && val < 1990) {
+				key = '80-ые';
+				if (!year[key]) {
+					year[key] = [];
+				}
+				year[key].push(val);
+			}
+			if (val >= 1990 && val < 2000) {
+				key = '90-ые';
+				if (!year[key]) {
+					year[key] = [];
+				}
+				year[key].push(val);
+			}
+			if (val >= 2000 && val < 2010) {
+				key = '2k';
+				if (!year[key]) {
+					year[key] = [];
+				}
+				year[key].push(val);
+			}
+			if (val >= 2010 && val < 2020) {
+				key = '2k10';
+				if (!year[key]) {
+					year[key] = [];
+				}
+				year[key].push(val);
+			}
+			if (val >= 2020 && val < 2030) {
+				key = '2k20';
+				if (!year[key]) {
+					year[key] = [];
+				}
+				year[key].push(val);
+			}
+		});
+		Object.keys(year).forEach((key) => {
+			const options = year[key];
+			const $optgroup = $(`<optgroup label="${key}"></optgroup>`);
+			options.forEach((option) => {
+				$optgroup.append(`<option value="${option}">${option}</option>`);
+			});
+			$year.append($optgroup);
+		});
 	}
 
 	render() {
@@ -308,44 +515,54 @@ class Filter {
 		console.log('send to server', this.data);
 
 		const currentSearch = this.buildSearch(this.data);
-		const initialSearch = this.buildSearch(this.initialData);
+		const initialSearch = this.buildSearch(this.initialData());
 		const search = currentSearch !== initialSearch ? currentSearch : '';
 		window.history.pushState({}, null, `${window.location.pathname}${search}`);
 
-		this.$list.html('');
-		const perPage = this.data.pagination.perPage;
-		this.filterList = this.filterData();
-		this.filterList.forEach((item, index) => {
-			if (index < perPage) {
-				const $card = this.$cardTemplate.clone();
-				$card.find('[data-brand]').html(item?.brand?.name);
-				$card
-					.find('[data-image]')
-					.attr('src', item?.image?.sizes['card-preview'])
-					.attr('alt', item?.image?.alt);
-				$card.find('[data-manufacturer]').html(item?.manufacturer?.name);
-				$card.find('[data-year]').html(item?.year);
-				$card.find('[data-model]').html(item?.model?.name);
-				$card.find('[data-currency]').html(item?.price?.currency?.symbol);
-				$card.find('[data-price]').html(item?.price?.value);
+		if (this.$list.length) {
+			this.$list.html('');
+			const perPage = this.data.pagination.perPage;
+			this.filterList = this.filterData();
+			if (this.filterList.length) {
+				const start = (this.page - 1) * perPage;
+				const end = start + perPage;
+				this.filterList.forEach((item, index) => {
+					if (index >= start && index < end) {
+						const $card = this.$cardTemplate.clone();
+						$card.find('[data-brand]').html(item?.brand?.name);
+						$card
+							.find('[data-image]')
+							.attr('src', item?.image?.sizes['card-preview'])
+							.attr('alt', item?.image?.alt);
+						$card.find('[data-manufacturer]').html(item?.manufacturer?.name);
+						$card.find('[data-year]').html(item?.year);
+						$card.find('[data-model]').html(item?.model?.name);
+						$card.find('[data-currency]').html(item?.price?.currency?.symbol);
+						$card.find('[data-price]').html(item?.price?.value);
 
-				this.$list.append($card);
-			}
-		});
-
-		this.$pagination.html('');
-		this.setPagination().forEach((item) => {
-			const $paginationItem = this.$paginationTemplate.clone();
-			const $item = $paginationItem.find('[data-link]');
-			$item.html(item.text);
-			$item.data('link', item.page);
-			if (item.active) {
-				$item.addClass('is-active');
+						this.$list.append($card);
+					}
+				});
 			} else {
-				$item.attr('href', '#');
+				this.$list.append(`<div class="_cell"><h3>Ничего не найдено!</h3></div>`);
 			}
-			this.$pagination.append($paginationItem);
-		});
+		}
+
+		if (this.$pagination.length) {
+			this.$pagination.html('');
+			this.setPagination().forEach((item) => {
+				const $paginationItem = this.$paginationTemplate.clone();
+				const $item = $paginationItem.find('[data-link]');
+				$item.html(item.text);
+				$item.data('link', item.page);
+				if (item.active) {
+					$item.addClass('is-active');
+				} else {
+					$item.attr('href', '#');
+				}
+				this.$pagination.append($paginationItem);
+			});
+		}
 	}
 }
 
