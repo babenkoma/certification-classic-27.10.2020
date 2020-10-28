@@ -5,36 +5,68 @@
 import $ from 'js#/lib/jquery';
 
 class Filter {
-	constructor(selector) {
-		this.$filter = $(selector);
+	constructor(formSelector, paginationSelector) {
+		this.filter = $(formSelector).get(0);
+
+		if (!this.filter) {
+			return;
+		}
+
+		this.$filter = $(this.filter);
+		this.$pagination = $(paginationSelector);
+		this.elements = this.filter?.elements || [];
 		this.keys = [
-			{ form: 'brand', server: 'brand', type: 'string' },
-			{ form: 'marka', server: 'manufacturer', type: 'string' },
-			{ form: 'filter-model', server: 'model', type: 'string' },
-			{ form: 'year', server: 'year', type: 'number' },
-			{ form: 'price-from', server: 'priceFrom', type: 'number' },
-			{ form: 'price-to', server: 'priceTo', type: 'number' },
-			{ form: 'sort', server: 'sort', type: 'string' },
-			{ form: 'per_page', server: 'perPage', type: 'number' }
+			{ form: 'brand', server: 'brand', param: 'brand', type: 'string' },
+			{
+				form: 'marka',
+				server: 'manufacturer',
+				param: 'manufacturer',
+				type: 'string'
+			},
+			{ form: 'filter-model', server: 'model', param: 'model', type: 'string' },
+			{ form: 'year', server: 'year', param: 'year', type: 'number' },
+			{
+				form: 'price-from',
+				server: 'priceFrom',
+				param: 'price-from',
+				type: 'number'
+			},
+			{ form: 'price-to', server: 'priceTo', param: 'price-to', type: 'number' },
+			{ form: 'sort', server: 'sort', param: 'sort', type: 'string' },
+			{ form: 'per_page', server: 'perPage', param: 'per-page', type: 'number' },
+			{ form: 'page', server: 'page', param: 'page', type: 'number' },
+			{ form: 'price', server: 'price', param: 'price', type: 'number' }
+		];
+		this.params = [
+			'page',
+			'year',
+			'price',
+			'model',
+			'manufacturer',
+			'brand',
+			'sort',
+			'per-page'
 		];
 		this.initialData = {
 			params: {
 				brand: [],
 				manufacturer: '',
 				model: '',
-				year: 1973,
-				price: []
+				year: 0,
+				price: [
+					+this.elements['price-from'].value,
+					+this.elements['price-to'].value
+				]
 			},
 			pagination: {
-				sort: 'price_asc',
-				perPage: 6,
-				page: 1
+				sort: this.elements.sort.value,
+				perPage: +this.elements.per_page.value,
+				page: +this.$pagination.find('.is-active').text()
 			}
 		};
 
-		const elements = this.$filter.get(0).elements;
-		for (let i = 0; i < elements.length; i++) {
-			$(elements[i]).on('change', () => {
+		for (let i = 0; i < this.elements.length; i++) {
+			$(this.elements[i]).on('change', () => {
 				this.filtering();
 			});
 		}
@@ -68,7 +100,7 @@ class Filter {
 	}
 
 	getFilterData() {
-		const formData = new FormData(this.$filter.get(0));
+		const formData = new FormData(this.filter);
 		const data = this.assign(this.initialData);
 
 		let priceFrom = 0;
@@ -100,13 +132,53 @@ class Filter {
 		return data;
 	}
 
+	data2obj(data) {
+		const allData = {};
+		Object.keys(data.params).forEach((key) => {
+			allData[key] = data.params[key];
+		});
+		Object.keys(data.pagination).forEach((key) => {
+			allData[key] = data.pagination[key];
+		});
+		return allData;
+	}
+
+	buildSearch(data) {
+		const params = [];
+		const allData = this.data2obj(data);
+		this.params.forEach((param) => {
+			const row = this.keys.find((item) => item.param === param);
+			const key = row.server;
+			const value = allData[key];
+			if (Array.isArray(value)) {
+				value.forEach((val) => {
+					if (val) {
+						params.push(`${param}[]=${val}`);
+					}
+				});
+			} else {
+				if (value) {
+					params.push(`${param}=${value}`);
+				}
+			}
+		});
+		return params.length ? `?${params.join('&')}` : '';
+	}
+
 	filtering() {
 		const data = this.getFilterData();
 		console.log('send to server', data);
+
+		const currentSearch = this.buildSearch(data);
+		const initialSearch = this.buildSearch(this.initialData);
+		console.log(currentSearch);
+		console.log(initialSearch);
+		const search = currentSearch !== initialSearch ? currentSearch : '';
+		window.history.pushState({}, null, `${window.location.pathname}${search}`);
 	}
 }
 
 export default () => {
-	const filter = new Filter('#filter');
+	const filter = new Filter('#filter', '#pagination');
 	filter.$filter.data('instance', filter);
 };
