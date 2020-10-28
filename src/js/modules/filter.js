@@ -21,6 +21,7 @@ class Filter {
 		this.$list = $('#card-list');
 		this.list = goods || [];
 		this.filterList = goods || [];
+		this.page = 1;
 		this.keys = [
 			{ form: 'brand', server: 'brand', param: 'brand', type: 'string' },
 			{
@@ -67,20 +68,20 @@ class Filter {
 			pagination: {
 				sort: this.elements.sort.value,
 				perPage: +this.elements.per_page.value,
-				page: 1
+				page: this.page
 			}
 		};
 		this.data = this.assign(this.initialData);
 
 		for (let i = 0; i < this.elements.length; i++) {
 			$(this.elements[i]).on('change', () => {
+				this.page = 1;
 				this.render();
 			});
 		}
 		$(window.document).on('click', '#pagination [data-link]', (event) => {
 			const $element = $(event.currentTarget);
-			const page = +$element.data('link');
-			this.data.pagination.page = page;
+			this.page = +$element.data('link');
 			this.render();
 			return false;
 		});
@@ -143,6 +144,7 @@ class Filter {
 			}
 		}
 		data.params.price = [priceFrom, priceTo];
+		data.pagination.page = this.page;
 
 		return data;
 	}
@@ -251,35 +253,37 @@ class Filter {
 	setPagination() {
 		const result = [];
 		const perPage = this.data.pagination.perPage;
-		const page = this.data.pagination.page;
+		const page = this.page;
 		const length = this.filterList.length;
 
 		const count = Math.ceil(length / perPage);
 
 		let start = page - 2;
-		let end = page + 2;
 		if (start < 1) {
 			start = 1;
 		}
+		let end = start + 4;
 		if (end > count) {
 			end = count;
+
+			start = end - 4;
+			if (start < 1) {
+				start = 1;
+			}
 		}
 
 		if (count > 5 && start > 1) {
 			result.push({
-				href: '#',
 				text: '<<',
 				page: 1
 			});
 			result.push({
-				href: '#',
 				text: '<',
 				page: page - 1 || 1
 			});
 		}
 		for (let i = start; i <= end; i++) {
 			result.push({
-				href: i !== page ? '#' : '',
 				text: i,
 				page: i,
 				active: i === page
@@ -287,12 +291,10 @@ class Filter {
 		}
 		if (count > 5 && end < count) {
 			result.push({
-				href: '#',
 				text: '>',
 				page: page + 1 < count ? page + 1 : count
 			});
 			result.push({
-				href: '#',
 				text: '>>',
 				page: count
 			});
@@ -336,12 +338,11 @@ class Filter {
 			const $paginationItem = this.$paginationTemplate.clone();
 			const $item = $paginationItem.find('[data-link]');
 			$item.html(item.text);
-			$item.attr('link', item.page);
-			if (item.href) {
-				$item.attr('href', item.href);
-			}
+			$item.data('link', item.page);
 			if (item.active) {
 				$item.addClass('is-active');
+			} else {
+				$item.attr('href', '#');
 			}
 			this.$pagination.append($paginationItem);
 		});
