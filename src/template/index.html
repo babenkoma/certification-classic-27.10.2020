@@ -18,7 +18,7 @@
 				<div class="_grid _spacer _spacer--lg">
 					<div class="_cell _cell--12 _md:cell--4 _df:cell--3">
 						<h2>Категории</h2>
-						<form id="filter" class="_owl _owl--df _pt-df">
+						<form id="filter" class="filter _owl _owl--df _pt-df">
 							<div class="filter-set">
 								<div class="filter-set__name">Бренд</div>
 								<div class="filter-set__controls">
@@ -183,46 +183,48 @@
 					</div>
 					<div class="_cell _cell--12 _md:cell--8 _df:cell--9">
 						<div class="_owl _owl--df">
-							<div class="_grid _grid--auto _spacer _spacer--md _justify-end">
-								<div class="_cell">
-									<div class="_owl _owl--xs">
-										<label for="sort">
-											<small>Сортировать:</small>
-										</label>
-										<select
-											id="sort"
-											name="sort"
-											class="select"
-											form="filter"
-										>
-											<option value="price_asc">От дешевых к дорогим</option>
-											<option value="price_desc">От дорогих к дешевым</option>
-											<option value="new_asc">От старых к новым</option>
-											<option value="new_desc">От новых к старым</option>
-										</select>
+							<div class="sort">
+								<div class="_grid _grid--1 _xs:grid--2 _md:grid--auto _spacer _spacer--md _justify-end">
+									<div class="_cell">
+										<div class="_owl _owl--xs">
+											<label for="sort">
+												<small>Сортировать:</small>
+											</label>
+											<select
+												id="sort"
+												name="sort"
+												class="select"
+												form="filter"
+											>
+												<option value="price_asc">От дешевых к дорогим</option>
+												<option value="price_desc">От дорогих к дешевым</option>
+												<option value="new_asc">От старых к новым</option>
+												<option value="new_desc">От новых к старым</option>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="_cell">
-									<div class="_owl _owl--xs">
-										<label for="per_page">
-											<small>Кол-во элементов на страницу:</small>
-										</label>
-										<select
-											id="per_page"
-											name="per_page"
-											class="select"
-											form="filter"
-										>
-											<option value="6">6</option>
-											<option value="12">12</option>
-											<option value="24">24</option>
-											<option value="60">60</option>
-										</select>
+									<div class="_cell">
+										<div class="_owl _owl--xs">
+											<label for="per_page">
+												<small>Кол-во элементов на страницу:</small>
+											</label>
+											<select
+												id="per_page"
+												name="per_page"
+												class="select"
+												form="filter"
+											>
+												<option value="6">6</option>
+												<option value="12">12</option>
+												<option value="24">24</option>
+												<option value="60">60</option>
+											</select>
+										</div>
 									</div>
 								</div>
 							</div>
 							<div class="_grid _spacer _spacer--lg">
-								<div class="_cell _cell--6 _md:cell--4">
+								<div class="_cell _cell--12 _xs:cell--6 _df:cell--4">
 									<div class="card">
 										<div class="card__top">
 											<div class="card__brand">ELIGOR</div>
@@ -256,7 +258,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="_cell _cell--6 _md:cell--4">
+								<div class="_cell _cell--12 _xs:cell--6 _df:cell--4">
 									<div class="card">
 										<div class="card__top">
 											<div class="card__brand">MSMODELS</div>
@@ -288,7 +290,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="_cell _cell--6 _md:cell--4">
+								<div class="_cell _cell--12 _xs:cell--6 _df:cell--4">
 									<div class="card">
 										<div class="card__top">
 											<div class="card__brand">ELIGOR</div>
@@ -320,7 +322,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="_cell _cell--6 _md:cell--4">
+								<div class="_cell _cell--12 _xs:cell--6 _df:cell--4">
 									<div class="card">
 										<div class="card__top">
 											<div class="card__brand">MSMODELS</div>
@@ -354,7 +356,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="_cell _cell--6 _md:cell--4">
+								<div class="_cell _cell--12 _xs:cell--6 _df:cell--4">
 									<div class="card">
 										<div class="card__top">
 											<div class="card__brand">SCHUCO</div>
@@ -386,7 +388,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="_cell _cell--6 _md:cell--4">
+								<div class="_cell _cell--12 _xs:cell--6 _df:cell--4">
 									<div class="card">
 										<div class="card__top">
 											<div class="card__brand">ELIGOR</div>

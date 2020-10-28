@@ -4,20 +4,29 @@
 	background-color: $background-surface;
 	border: 1px solid $border-default;
 	border-radius: 8px;
+	position: relative;
+	z-index: 3;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	transition: box-shadow 0.3s;
 
 	&:hover {
 		box-shadow: 0 0 microbe-rem(60) black;
+		z-index: 2;
 	}
 
 	&__top {
 		padding-top: 80%;
 		overflow: hidden;
 		position: relative;
+		flex-shrink: 0;
 	}
 
 	&__bottom {
 		padding: microbe-rem(16) microbe-rem(20) microbe-rem(10);
 		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+		flex-grow: 1;
 	}
 
 	&__image {
@@ -54,6 +63,12 @@
 	&__model {
 		font-weight: 700;
 		font-size: microbe-rem(16);
+		line-height: 1.3em;
+
+		@include microbe-media($microbe-breakpoint-xs) {
+			height: 2.6em;
+			overflow: hidden;
+		}
 	}
 
 	&__price {

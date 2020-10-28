@@ -2,11 +2,11 @@
 
 .section {
 	position: relative;
-	z-index: 2;
 	padding: microbe-rem(30) 0;
 
 	&--white {
 		background-color: $background-surface;
+		z-index: 1;
 	}
 
 	&__decor {
@@ -16,5 +16,10 @@
 		top: microbe-rem(-70);
 		left: 50%;
 		margin-left: microbe-rem(-140);
+	}
+
+	.wysiwyg {
+		position: relative;
+		z-index: 2;
 	}
 }
